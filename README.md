@@ -89,6 +89,9 @@ Content-Type: application/json
 # ReleaseReservations
 POST <http://localhost:8081/v1/products/release>
 Content-Type: application/json
+{
+  "unique_codes": ["ABC123", "DEF456"]
+}
 ```
 
 - Response
@@ -102,10 +105,6 @@ Content-Type: application/json
 3) **Release reservations request**
 
 ``` .http
-{
-  "unique_codes": ["ABC123", "DEF456"]
-}
-
 # GetRemainingProducts
 GET <http://localhost:8081/v1/products/remaining/1>
 ```
