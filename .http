@@ -1,0 +1,37 @@
+# ReserveProducts
+POST <http://localhost:8081/v1/products/reserve>
+Content-Type: application/json
+
+{
+  "unique_codes": ["ABC123", "DEF456"]
+}
+
+# ReleaseReservations
+POST <http://localhost:8081/v1/products/release>
+Content-Type: application/json
+
+{
+  "unique_codes": ["ABC123", "DEF456"]
+}
+
+# GetRemainingProducts
+GET <http://localhost:8081/v1/products/remaining/1>
+
+# ReserveProducts (for testing a store with no available products)
+POST <http://localhost:8081/v1/products/reserve>
+Content-Type: application/json
+
+{
+  "unique_codes": ["GHI789"]
+}
+
+# ReleaseReservations (for testing a store with no available products)
+POST <http://localhost:8081/v1/products/release>
+Content-Type: application/json
+
+{
+  "unique_codes": ["GHI789"]
+}
+
+# GetRemainingProducts (for testing a store with no available products)
+GET <http://localhost:8081/v1/products/remaining/3>

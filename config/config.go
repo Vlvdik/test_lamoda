@@ -9,11 +9,12 @@ import (
 
 type Config struct {
 	GRPCAddr        string
-	HTTPGatewayPort string
+	HTTPGatewayAddr string
 	DB              string
 	DBUser          string
 	DBPassword      string
 	DBPort          string
+	DBHost          string
 }
 
 func LoadConfig() *Config {
@@ -24,20 +25,22 @@ func LoadConfig() *Config {
 		log.Fatalf("Error when trying to load .env file: %v\nDir: %s", err, dir)
 	}
 
-	grpcAddr := getEnv("GRPC_ADDR", "localhost:50051")
-	httpGatewayPort := getEnv("HTTP_GATEWAY_PORT", "8080")
+	grpcAddr := getEnv("GRPC_ADDR", "0.0.0.0:50051")
+	httpGatewayAddr := getEnv("HTTP_GATEWAY_ADDR", "0.0.0.0:8081")
 	dbName := getEnv("POSTGRES_DB", "postgres")
 	user := getEnv("POSTGRES_USER", "user")
 	password := getEnv("POSTGRES_PASSWORD", "postgres")
 	port := getEnv("POSTGRES_PORT", "5432")
+	host := getEnv("POSTGRES_HOST", "db")
 
 	return &Config{
 		GRPCAddr:        grpcAddr,
-		HTTPGatewayPort: httpGatewayPort,
+		HTTPGatewayAddr: httpGatewayAddr,
 		DB:              dbName,
 		DBUser:          user,
 		DBPassword:      password,
 		DBPort:          port,
+		DBHost:          host,
 	}
 }
 

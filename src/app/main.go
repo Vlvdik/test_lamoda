@@ -12,6 +12,7 @@ import (
 	"test_lamoda/config"
 	"test_lamoda/internal/service"
 	proto "test_lamoda/internal/service/proto/gen"
+	"time"
 
 	"google.golang.org/grpc"
 )
@@ -19,9 +20,11 @@ import (
 func main() {
 	config := config.LoadConfig()
 
-	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable", "", "", ""))
-	if err != nil {
-		slog.Error("failed to connect to the database: ", err)
+	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable", config.DBUser, config.DB, config.DBPassword, config.DBHost))
+	for err != nil {
+		log.Printf("Waiting for the database to be available...")
+		time.Sleep(1 * time.Second)
+		db, err = sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable", config.DBUser, config.DB, config.DBPassword, config.DBHost))
 	}
 	defer db.Close()
 
@@ -42,12 +45,11 @@ func main() {
 		}
 	}()
 
-	server.RunGateway(config.GRPCAddr, config.HTTPGatewayPort)
+	server.RunGateway(config.GRPCAddr, config.HTTPGatewayAddr)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	// Ожидание сигнала о завершении работы
 	<-stop
 	slog.Info("Shutting down gracefully")
 

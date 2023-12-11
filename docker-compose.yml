@@ -6,11 +6,13 @@ services:
       context: .
     depends_on:
       - db
+      - migrate
     ports:
       - "${HTTP_GATEWAY_PORT}:${HTTP_GATEWAY_PORT}"
       - "${GRPC_PORT}:${GRPC_PORT}"
     env_file:
       - .env
+    restart: unless-stopped
 
   db:
     image: postgres:latest
@@ -20,7 +22,20 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
-    volumes:
-      - ./migrations:/migrations
     env_file:
       - .env
+    restart: unless-stopped
+
+  migrate:
+    image: migrate/migrate:v4.16.0
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      - db
+    command: ["-path", "/migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up"]
+    restart: on-failure
+
+
+volumes:
+  postgres_data:
+    external: true

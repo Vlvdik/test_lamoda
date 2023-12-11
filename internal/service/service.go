@@ -22,7 +22,7 @@ func NewServer(db *sql.DB) *Server {
 	}
 }
 
-func (s *Server) RunGateway(grpcServerAddr, gatewayPort string) {
+func (s *Server) RunGateway(grpcServerAddr, gatewayAddr string) {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -35,6 +35,8 @@ func (s *Server) RunGateway(grpcServerAddr, gatewayPort string) {
 		log.Fatalf("failed to register gRPC gateway: %v", err)
 	}
 
-	log.Printf("gRPC gateway is listening on port %s and forwarding requests to gRPC server at %s\n", gatewayPort, grpcServerAddr)
-	http.ListenAndServe(gatewayPort, mux)
+	log.Printf("gRPC gateway is listening on addr %s and forwarding requests to gRPC server at %s\n", gatewayAddr, grpcServerAddr)
+	if err := http.ListenAndServe(gatewayAddr, mux); err != nil {
+		log.Fatalf("failed to serve HTTP gateway: %v", err)
+	}
 }
