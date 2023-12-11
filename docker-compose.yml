@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+    depends_on:
+      - db
+    ports:
+      - "${HTTP_GATEWAY_PORT}:${HTTP_GATEWAY_PORT}"
+      - "${GRPC_PORT}:${GRPC_PORT}"
+    env_file:
+      - .env
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - ./migrations:/migrations
+    env_file:
+      - .env

@@ -1,0 +1,50 @@
+syntax = "proto3";
+package proto;
+
+import "google/api/annotations.proto";
+
+option go_package = "./;proto";
+
+service ProductService {
+  rpc ReserveProducts(ReserveProductsRequest) returns (ReserveProductsResponse) {
+    option (google.api.http) = {
+      post: "/v1/products/reserve"
+      body: "*"
+    };
+  }
+  rpc ReleaseReservations(ReleaseReservationsRequest) returns (ReleaseReservationsResponse) {
+    option (google.api.http) = {
+      post: "/v1/products/release"
+      body: "*"
+    };
+  }
+  rpc GetRemainingProducts(GetRemainingProductsRequest) returns (GetRemainingProductsResponse) {
+    option (google.api.http) = {
+      get: "/v1/products/remaining/{store_id}"
+    };
+  }
+}
+
+message ReserveProductsRequest {
+  repeated string unique_codes = 1;
+}
+
+message ReserveProductsResponse {
+  string message = 1;
+}
+
+message ReleaseReservationsRequest {
+  repeated string unique_codes = 1;
+}
+
+message ReleaseReservationsResponse {
+  string message = 1;
+}
+
+message GetRemainingProductsRequest {
+  int32 store_id = 1;
+}
+
+message GetRemainingProductsResponse {
+  int32 count = 1;
+}
