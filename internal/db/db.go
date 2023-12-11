@@ -10,15 +10,21 @@ import (
 const (
 	COUNT_OF_PRODUCT = `SELECT count FROM product WHERE unique_code = $1`
 
-	PRODUCT_RESERVE = `
+	PRODUCT_RESERVE_INSERT = `
 		INSERT INTO reservation (product_id, count)
 		VALUES ((SELECT id FROM product WHERE unique_code = $1), 1)
-		ON CONFLICT (product_id) DO UPDATE SET count = reservation.count + 1;	
+		ON CONFLICT (product_id) DO NOTHING;
+	`
+
+	PRODUCT_RESERVE_UPDATE = `
 		UPDATE product SET count = count - 1 WHERE unique_code = $1;
 	`
 
-	RELEASE_RESERVATION = `
+	RELEASE_RESERVATION_UPDATE_RESERVATION = `
 		UPDATE reservation SET count = 0 WHERE product_id = (SELECT id FROM product WHERE unique_code = $1);
+	`
+
+	RELEASE_RESERVATION_UPDATE_PRODUCT = `
 		UPDATE product SET count = count + 1 WHERE unique_code = $1;
 	`
 
@@ -52,7 +58,13 @@ func ReserveProduct(db *sql.DB, uniqueCodes []string) error {
 			return fmt.Errorf("insufficient quantity. Code: %s", code)
 		}
 
-		_, err = tx.Exec(PRODUCT_RESERVE, code)
+		_, err = tx.Exec(PRODUCT_RESERVE_INSERT, code)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		_, err = tx.Exec(PRODUCT_RESERVE_UPDATE, code)
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -79,7 +91,13 @@ func ReleaseReservation(db *sql.DB, uniqueCodes []string) error {
 	}()
 
 	for _, code := range uniqueCodes {
-		_, err := tx.Exec(RELEASE_RESERVATION, code)
+		_, err := tx.Exec(RELEASE_RESERVATION_UPDATE_RESERVATION, code)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		_, err = tx.Exec(RELEASE_RESERVATION_UPDATE_PRODUCT, code)
 		if err != nil {
 			tx.Rollback()
 			return err
