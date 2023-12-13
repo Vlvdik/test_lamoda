@@ -89,6 +89,10 @@ Content-Type: application/json
 # ReleaseReservations
 POST <http://localhost:8081/v1/products/release>
 Content-Type: application/json
+
+{
+  "unique_codes": ["ABC123", "DEF456"]
+}
 ```
 
 - Response
@@ -99,13 +103,9 @@ Content-Type: application/json
 }
 ```
 
-3) **Release reservations request**
+3) **Get remaining products request**
 
 ``` .http
-{
-  "unique_codes": ["ABC123", "DEF456"]
-}
-
 # GetRemainingProducts
 GET <http://localhost:8081/v1/products/remaining/1>
 ```
@@ -121,3 +121,7 @@ GET <http://localhost:8081/v1/products/remaining/1>
 ### Также, создан swagger файл в *(лежит одноименной папке)*
 
 ---
+
+### Технологии, используемые в проекте:
+
+Основой для создания API послужил gRPC. Я использовал его для возможности гибкого взаимодействия, предварительно настроив gateway для вызова JSON-API like запросов по описанным эндпоинтам в swagger файле в папке ```/swagger```
